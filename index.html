@@ -21,7 +21,7 @@
 <div class="card" style="max-width:1100px;margin:20px auto 7vh"><div class="chatHead"><div><h2>📦 Bài đăng mới</h2><small>Admin cập nhật menu, hình ảnh và link tại đây.</small></div></div><div id="postGrid" class="postGrid"></div></div></section>
 
 <section id="auth" class="page"><div class="card"><h2>Tài khoản</h2>
-<input id="username" placeholder="Tên tài khoản" autocomplete="username">
+<input id="username" maxlength="12" minlength="3" placeholder="Tên tài khoản (3-12 ký tự)" autocomplete="username">
 <input id="email" type="email" placeholder="Email">
 <input id="password" type="password" placeholder="Mật khẩu" autocomplete="current-password">
 <div class="row"><button class="primary" onclick="register()">TẠO TÀI KHOẢN</button><button onclick="login()">ĐĂNG NHẬP</button><button onclick="logout()">ĐĂNG XUẤT</button></div>

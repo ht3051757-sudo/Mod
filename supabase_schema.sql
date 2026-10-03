@@ -3,13 +3,18 @@ create extension if not exists pgcrypto;
 
 create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
-  username text unique not null check (char_length(username) between 3 and 32),
+  username text unique not null check (char_length(username) between 3 and 12),
   avatar text default '',
   role text not null default 'user' check (role in ('user','admin','free_fire','free_fire_max')),
   last_ip text default '',
   banned boolean not null default false,
   created_at timestamptz not null default now()
 );
+-- Username length: 3-12 characters (matches the web UI).
+alter table if exists public.profiles drop constraint if exists profiles_username_length_check;
+alter table if exists public.profiles add constraint profiles_username_length_check
+  check (char_length(username) between 3 and 12);
+
 create table if not exists public.keys (
   id uuid primary key default gen_random_uuid(),
   key text unique not null,

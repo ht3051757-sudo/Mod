@@ -1,52 +1,52 @@
 # UGPHONE MOD — bản sửa lỗi đăng nhập/Admin
 
-## Lỗi đã sửa
-- Không còn lỗi `Cannot read properties of null (reading 'auth')` khi người dùng bấm Đăng ký/Đăng nhập/Admin trước lúc Supabase tải xong.
-- Nếu Supabase chưa cấu hình, giao diện báo rõ cần sửa `config.js` thay vì lỗi JavaScript.
-- Nếu CDN Supabase không tải được, giao diện báo lỗi kết nối.
-- Admin login hiện báo rõ lỗi xác thực hoặc tài khoản chưa có `role=admin`.
-- Bảo vệ `role`/`banned` trong database để user thường không tự sửa quyền của mình.
+## Lỗi trong ảnh
+Thông báo `Hãy điền UG_SUPABASE_URL và UG_SUPABASE_ANON_KEY trong config.js.` xuất hiện vì `ug/config.js` đang chứa giá trị mẫu:
 
-## Cấu hình bắt buộc
-Sửa `config.js`:
+- `https://YOUR-PROJECT.supabase.co`
+- `YOUR_SUPABASE_ANON_KEY`
+
+Đây **không phải lỗi giao diện**; Supabase client không thể khởi tạo nếu chưa có Project URL + publishable/anon key thật.
+
+### Chỗ cần sửa
+Mở `ug/config.js` và thay đúng 2 dòng:
 
 ```js
-window.UG_SUPABASE_URL = "https://YOUR-PROJECT.supabase.co";
-window.UG_SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+window.UG_SUPABASE_URL = "https://<project-ref>.supabase.co";
+window.UG_SUPABASE_ANON_KEY = "<publishable-or-anon-key>";
 ```
 
-Sau đó chạy toàn bộ `supabase_schema.sql` trong Supabase SQL Editor.
+Không đưa `SUPABASE_SERVICE_ROLE_KEY` vào file này.
 
-## Cấp quyền Admin
-1. Tạo tài khoản bằng giao diện web.
-2. Xác nhận email nếu Supabase đang bật Email Confirmation.
-3. Trong Supabase SQL Editor chạy:
+Sau khi upload lên GitHub Pages, hard-refresh trang (Ctrl+F5 hoặc xóa cache) để lấy `config.js` mới.
+
+## Các thay đổi đã áp dụng trong bản FIX
+- `config.js`: chú thích rõ vị trí lấy credentials và phân biệt anon/publishable key với service-role key.
+- Tên tài khoản: giới hạn **3–12 ký tự** ở HTML + JavaScript.
+- `supabase_schema.sql`: đồng bộ giới hạn username **3–12 ký tự**, kèm migration cho database đã tồn tại.
+- Giữ nguyên cơ chế đăng nhập Supabase, role Admin, BAN và các chức năng hiện có.
+
+## Cấu hình Supabase
+Sau khi điền `config.js`, chạy `supabase_schema.sql` trong Supabase SQL Editor.
+
+### Cấp quyền Admin
+Tạo tài khoản bằng giao diện web, sau đó trong Supabase SQL Editor:
 
 ```sql
 update public.profiles
 set role='admin'
-where username='TEN_ADMIN';
+where id=(select id from auth.users where email='EMAIL_ADMIN');
 ```
 
-Admin login dùng **email + mật khẩu Supabase**, không phải KEY nhận hằng ngày.
+Admin đăng nhập bằng email + mật khẩu Supabase. Không lưu mật khẩu trong source code.
 
-## server.js
-`server.js` là backend Node.js. Nó không chạy trên GitHub Pages. Chạy ở VPS/Node hosting riêng và đặt:
+## Backend
+`server.js` là backend Node.js và không chạy trực tiếp trên GitHub Pages. Nếu cần chức năng BAN theo IP ở mức server, deploy `server.js` lên VPS/Node hosting và đặt:
 
 ```env
-SUPABASE_URL=https://YOUR-PROJECT.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVICE_ROLE_KEY
+SUPABASE_URL=https://<project-ref>.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=<service-role-key>
 PORT=3000
 ```
 
-Không đưa `SUPABASE_SERVICE_ROLE_KEY` vào GitHub hoặc `config.js`.
-
-
-## Đổi mật khẩu / thông tin triển khai
-- Trang **ĐĂNG KÝ / ĐĂNG NHẬP** → sau khi đăng nhập sẽ có mục **Đổi mật khẩu**.
-- Đổi mật khẩu gọi `supabase.auth.updateUser({ password })`; không lưu plaintext password vào `profiles`.
-- Email Admin được điền sẵn là `namn63657@gmail.com`.
-- KEY được seed trong `supabase_schema.sql` là `6677028@` cho ngày `2026-10-03`, giới hạn 999999 lượt.
-- Sau khi tạo user `namn63657@gmail.com` trong Supabase Auth, chạy:
-  `update public.profiles set role='admin' where id=(select id from auth.users where email='namn63657@gmail.com');`
-- Không đặt mật khẩu Admin trong source code, ZIP hoặc `config.js`.
+`SUPABASE_SERVICE_ROLE_KEY` chỉ được đặt ở server, tuyệt đối không đưa vào `config.js`.
