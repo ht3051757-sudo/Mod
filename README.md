@@ -50,3 +50,7 @@ PORT=3000
 ```
 
 `SUPABASE_SERVICE_ROLE_KEY` chỉ được đặt ở server, tuyệt đối không đưa vào `config.js`.
+
+
+## Bản cập nhật: đăng ký không còn bị chặn khi chưa có Supabase
+Nếu `config.js` vẫn còn placeholder, trang sẽ tự chuyển sang **Local Auth** để nút TẠO TÀI KHOẢN và ĐĂNG NHẬP hoạt động ngay trên trình duyệt. Mật khẩu được lưu dưới dạng SHA-256 trong localStorage. Chế độ này chỉ dành cho chạy ngay trên một thiết bị; dữ liệu không đồng bộ giữa các máy và các tính năng dùng database/realtime/Admin vẫn cần Supabase. Khi điền Supabase thật, hệ thống tự quay lại Supabase Auth.

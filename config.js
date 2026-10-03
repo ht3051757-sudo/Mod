@@ -1,4 +1,5 @@
 // UGPHONE MOD — Supabase client configuration
+// Nếu chưa có Supabase, website tự động dùng chế độ đăng ký/đăng nhập cục bộ trên thiết bị này.
 // 1) Supabase Dashboard -> Project Settings -> API
 // 2) Paste the Project URL and the publishable/anon key below.
 // NEVER put SUPABASE_SERVICE_ROLE_KEY in this file.
